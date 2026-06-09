@@ -34,22 +34,17 @@ end
 
 function adjusted_cosine_similarity(u, v)
 
-    # Filmes avaliados por ambos os usuários
-    common_items = (u .> 0) .& (v .> 0)
+    global common_items = (u .> 0) .& (v .> 0)
 
     if sum(common_items) == 0
         return 0.0
     end
 
-    u_common = u[common_items]
-    v_common = v[common_items]
+    mean_u = mean(u[u .> 0])
+    mean_v = mean(v[v .> 0])
 
-    # Média apenas dos itens em comum
-    mean_u = mean(u_common)
-    mean_v = mean(v_common)
-
-    u_adjusted = u_common .- mean_u
-    v_adjusted = v_common .- mean_v
+    u_adjusted = u[common_items] .- mean_u
+    v_adjusted = v[common_items] .- mean_v
 
     denominator = norm(u_adjusted) * norm(v_adjusted)
 
@@ -64,24 +59,40 @@ end
 # ESCOLHER 2 USUÁRIOS ALEATÓRIOS
 # =========================================================
 
-#Random.seed!(123)
+target_user = 1#rand(1:943)
 
-user1 = rand(1:n_users)
+best_user = -1
+best_similarity = -Inf
 
-user2 = rand(1:n_users)
-while user2 == user1
-    user2 = rand(1:n_users)
+for other_user in 1:n_users
+
+    if other_user == target_user
+        continue
+    end
+
+    common_items =
+        (R[target_user,:] .> 0) .&
+        (R[other_user,:] .> 0)
+
+    common_count = sum(common_items)
+
+    if common_count < 10
+        continue
+    end
+
+    sim = adjusted_cosine_similarity(
+        R[target_user,:],
+        R[other_user,:]
+    )
+
+    if sim > best_similarity
+        global best_similarity = sim
+        global best_user = other_user
+        global best_common = common_count
+    end
 end
 
-# =========================================================
-# CALCULAR SIMILARIDADE
-# =========================================================
-
-similarity = adjusted_cosine_similarity(
-    R[user1, :],
-    R[user2, :]
-)
-
-println("Usuário 1: ", user1)
-println("Usuário 2: ", user2)
-println("Similaridade (Cosseno Ajustado): ", round(similarity, digits=4))
+println("Usuário mais parecido com $target_user")
+println("Usuário: $best_user")
+println("Filmes em comum: $best_common")
+println("Similaridade: $best_similarity")
