@@ -1,5 +1,4 @@
 using Pkg
-# Tenta carregar o pacote, se falhar, instala automaticamente
 try
     using UnicodePlots
 catch
@@ -123,7 +122,6 @@ function evaluate_models(df, num_users, num_items)
     R_train = create_utility_matrix(train_df, num_users, num_items)
     count_test = nrow(test_df)
     
-    # Armazenamento para os gráficos
     k_vals = [10.0, 30.0, 50.0]
     rmse_k = Float64[]
     mae_k = Float64[]
@@ -150,7 +148,6 @@ function evaluate_models(df, num_users, num_items)
         push!(mae_k, mae_ib)
         push!(rmse_k, rmse_ib)
         
-        # PRINT TEXTUAL SOLICITADO
         println("-> RESULTADO [k = $k_test]: MAE = $(round(mae_ib, digits=4)) | RMSE = $(round(rmse_ib, digits=4))")
     end
     
@@ -201,13 +198,9 @@ function evaluate_models(df, num_users, num_items)
         push!(mae_factors, mae_svd)
         push!(rmse_factors, rmse_svd)
         
-        # PRINT TEXTUAL SOLICITADO
         println("-> RESULTADO [Fatores = $factors_test]: MAE = $(round(mae_svd, digits=4)) | RMSE = $(round(rmse_svd, digits=4))\n")
     end
     
-    # =========================================================
-    # VISUALIZAÇÕES ADICIONAIS NO TERMINAL (UnicodePlots)
-    # =========================================================
     println("\n=============================================")
     println("3. VISUALIZAÇÕES GRÁFICAS NO TERMINAL")
     println("=============================================")
@@ -218,7 +211,6 @@ function evaluate_models(df, num_users, num_items)
     println("\n[Gráfico 2] Evolução do RMSE - SVD (Fatores):")
     display(lineplot(factors_vals, rmse_factors, xlabel="Fatores", ylabel="RMSE", color=:red))
 
-    # Curva ROC Adaptada
     thresholds = range(1.0, 5.0, length=20)
     tpr_vals = Float64[]
     fpr_vals = Float64[]
@@ -242,7 +234,6 @@ function evaluate_models(df, num_users, num_items)
     println("=============================================")
 end
 
-# --- Bloco de Execução Principal ---
 filepath = "./ml-latest-small/ratings.csv" 
 
 if isfile(filepath)
